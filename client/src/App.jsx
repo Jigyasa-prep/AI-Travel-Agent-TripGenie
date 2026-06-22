@@ -1,14 +1,18 @@
-import Navbar from "./components/Navbar";
-import Hero from "./components/Hero";
-import Features from "./components/Features";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Home from "./pages/Home";
+import CreateTrip from "./pages/CreateTrip";
+import TripDetails from "./pages/TripDetails";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-600 to-purple-700 text-white">
-      <Navbar />
-      <Hero />
-      <Features />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/create-trip" element={<CreateTrip />} />
+        <Route path="/trip/:id" element={<TripDetails />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
