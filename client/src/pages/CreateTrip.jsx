@@ -1,6 +1,9 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 function CreateTrip() {
+
+  const navigate = useNavigate();
+
   const [tripData, setTripData] = useState({
     destination: "",
     budget: "",
@@ -45,7 +48,9 @@ Interest Focus: ${tripData.interest}
       console.log("AI Response:");
       console.log(response);
 
-      alert("Trip Generated! Check Console.");
+      localStorage.setItem("trip", JSON.stringify(tripData));
+
+navigate("/trip/1");
     } catch (error) {
       console.error(error);
     }
