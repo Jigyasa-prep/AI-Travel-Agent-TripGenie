@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-function CreateTrip() {
 
+function CreateTrip() {
   const navigate = useNavigate();
 
   const [tripData, setTripData] = useState({
@@ -18,43 +18,23 @@ function CreateTrip() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = (e) => {
+  e.preventDefault();
 
-    try {
-      const response = `
-🌴 Trip Plan for ${tripData.destination}
+  console.log("Saving Trip:", tripData);
 
-Day 1
-• Explore main city attractions
-• Local food tour
-• Evening sunset point
+  localStorage.setItem(
+    "trip",
+    JSON.stringify(tripData)
+  );
 
-Day 2
-• Famous historical places
-• Shopping market visit
-• Cultural experience
+  console.log(
+    "Saved:",
+    localStorage.getItem("trip")
+  );
 
-Day 3
-• Adventure activities
-• Photography spots
-• Local cuisine dinner
-
-Budget Estimate: ₹${tripData.budget}
-
-Interest Focus: ${tripData.interest}
-`;
-
-      console.log("AI Response:");
-      console.log(response);
-
-      localStorage.setItem("trip", JSON.stringify(tripData));
-
-navigate("/trip/1");
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  navigate("/trip/1");
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 to-purple-600 flex justify-center items-center p-6">
