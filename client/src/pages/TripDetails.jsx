@@ -7,10 +7,8 @@ function TripDetails() {
 
   if (!trip) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-3xl font-bold">
-          No Trip Found
-        </h1>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <h1 className="text-3xl font-bold">No Trip Found 😔</h1>
       </div>
     );
   }
@@ -28,78 +26,205 @@ function TripDetails() {
       ],
     })
   );
-
-  console.log("Trip:", trip);
-  console.log("Days:", totalDays);
-  console.log("Itinerary:", itinerary);
-
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-100 to-purple-100 p-8">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
 
         {/* Header */}
-        <div className="bg-white rounded-3xl shadow-xl p-8 mb-8">
-          <h1 className="text-5xl font-bold mb-4">
-            ✈️ Your Trip to {trip.destination}
+        <div className="bg-white rounded-3xl shadow-xl p-8 mb-10">
+          <h1 className="text-5xl font-bold text-center mb-8">
+            ✈️ Trip to {trip.destination}
           </h1>
 
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-6">
 
-            <div className="bg-blue-50 rounded-xl p-4">
-              <h3 className="font-bold">💰 Budget</h3>
-              <p>₹{trip.budget}</p>
+            <div className="bg-blue-50 rounded-xl p-6 text-center">
+              <h3 className="text-xl font-bold">💰 Budget</h3>
+              <p className="text-2xl mt-2 font-semibold">
+                ₹{trip.budget}
+              </p>
             </div>
 
-            <div className="bg-green-50 rounded-xl p-4">
-              <h3 className="font-bold">📅 Days</h3>
-              <p>{trip.days}</p>
+            <div className="bg-green-50 rounded-xl p-6 text-center">
+              <h3 className="text-xl font-bold">📅 Days</h3>
+              <p className="text-2xl mt-2 font-semibold">
+                {trip.days}
+              </p>
             </div>
 
-            <div className="bg-purple-50 rounded-xl p-4">
-              <h3 className="font-bold">🎯 Interest</h3>
-              <p>{trip.interest}</p>
+            <div className="bg-purple-50 rounded-xl p-6 text-center">
+              <h3 className="text-xl font-bold">🎯 Interest</h3>
+              <p className="text-2xl mt-2 font-semibold">
+                {trip.interest}
+              </p>
             </div>
 
           </div>
         </div>
 
-        <h2 className="text-3xl font-bold mb-2">
+        {/* Itinerary */}
+        <h2 className="text-4xl font-bold mb-6">
           🗺️ Day-wise Itinerary
         </h2>
 
-        <p className="text-red-600 text-xl mb-6">
-          Total Cards: {itinerary.length}
-        </p>
+        <div className="space-y-6 mb-12">
+          {itinerary.map((item, index) => (
+            <div
+              key={index}
+              className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl transition"
+            >
+              <h2 className="text-2xl font-bold text-blue-600 mb-4">
+                {item.day}
+              </h2>
 
-        <div className="space-y-6">
+              <ul className="space-y-3">
+                {item.activities.map((activity, i) => (
+                  <li
+                    key={i}
+                    className="bg-gray-100 p-3 rounded-lg"
+                  >
+                    {activity}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
 
-          {itinerary.map((item, index) => {
-            console.log("Rendering:", item.day);
+        {/* Hotels */}
 
-            return (
-              <div
-                key={index}
-                className="bg-white rounded-2xl shadow-lg p-6"
-              >
-                <h2 className="text-2xl font-bold text-blue-600 mb-4">
-                  {item.day}
-                </h2>
+        <h2 className="text-4xl font-bold mb-6">
+          🏨 Recommended Hotels
+        </h2>
 
-                <ul className="space-y-2">
-                  {item.activities.map((activity, i) => (
-                    <li
-                      key={i}
-                      className="bg-gray-100 rounded-lg p-3"
-                    >
-                      {activity}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
+        <div className="grid md:grid-cols-2 gap-6 mb-12">
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 hover:scale-105 transition">
+            <h3 className="text-2xl font-bold">
+              ⭐ Hotel Snow View
+            </h3>
+
+            <p className="mt-3 text-lg">
+              ⭐⭐⭐⭐☆
+            </p>
+
+            <p className="mt-3">
+              💰 ₹2500 / Night
+            </p>
+
+            <p>
+              📍 Near City Center
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl shadow-lg p-6 hover:scale-105 transition">
+            <h3 className="text-2xl font-bold">
+              ⭐ Himalayan Resort
+            </h3>
+
+            <p className="mt-3 text-lg">
+              ⭐⭐⭐⭐⭐
+            </p>
+
+            <p className="mt-3">
+              💰 ₹3500 / Night
+            </p>
+
+            <p>
+              📍 Mountain View
+            </p>
+          </div>
 
         </div>
+
+        {/* Food */}
+
+        <h2 className="text-4xl font-bold mb-6">
+          🍴 Must Try Foods
+        </h2>
+
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-12">
+
+          <div className="grid md:grid-cols-2 gap-4">
+
+            <div className="bg-orange-100 p-4 rounded-xl">
+              🍜 Local Noodles
+            </div>
+
+            <div className="bg-orange-100 p-4 rounded-xl">
+              🥟 Momos
+            </div>
+
+            <div className="bg-orange-100 p-4 rounded-xl">
+              ☕ Local Tea
+            </div>
+
+            <div className="bg-orange-100 p-4 rounded-xl">
+              🍛 Traditional Thali
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Budget */}
+
+        <h2 className="text-4xl font-bold mb-6">
+          💰 Budget Breakdown
+        </h2>
+
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-12">
+
+          <div className="space-y-4">
+
+            <div className="flex justify-between">
+              <span>🏨 Hotels</span>
+              <span>₹12,000</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>🍴 Food</span>
+              <span>₹5,000</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>🚕 Transport</span>
+              <span>₹8,000</span>
+            </div>
+
+            <div className="flex justify-between">
+              <span>🛍️ Shopping</span>
+              <span>₹5,000</span>
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* Tips */}
+
+        <h2 className="text-4xl font-bold mb-6">
+          📝 Travel Tips
+        </h2>
+
+        <div className="bg-white rounded-2xl shadow-lg p-6">
+
+          <ul className="space-y-3">
+
+            <li>✅ Carry ID Proof</li>
+
+            <li>✅ Keep Emergency Cash</li>
+
+            <li>✅ Start sightseeing early</li>
+
+            <li>✅ Check local weather before travelling</li>
+
+            <li>✅ Keep your phone charged</li>
+
+          </ul>
+
+        </div>
+
       </div>
     </div>
   );
