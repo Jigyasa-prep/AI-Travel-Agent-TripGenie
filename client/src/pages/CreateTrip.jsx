@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { generateTripPlan } from "../services/GeminiAI";
 
 function CreateTrip() {
   const navigate = useNavigate();
@@ -18,24 +19,49 @@ function CreateTrip() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
   e.preventDefault();
 
-  console.log("Saving Trip:", tripData);
+  console.log("✅ Button Clicked");
 
-  localStorage.setItem(
-    "trip",
-    JSON.stringify(tripData)
-  );
+  try {
+    const prompt = `
+Create a ${tripData.days}-day travel plan for ${tripData.destination}.
 
-  console.log(
-    "Saved:",
-    localStorage.getItem("trip")
-  );
+Budget: ₹${tripData.budget}
 
-  navigate("/trip/1");
+Interest: ${tripData.interest}
+
+Give:
+1. Day-wise itinerary
+2. Best hotels
+3. Famous foods
+4. Budget breakdown
+5. Travel tips
+`;
+
+    console.log("📤 Prompt:");
+    console.log(prompt);
+
+    const aiResponse = await generateTripPlan(prompt);
+
+    console.log("✅ AI Response:");
+    console.log(aiResponse);
+
+    localStorage.setItem(
+      "trip",
+      JSON.stringify({
+        ...tripData,
+        aiPlan: aiResponse,
+      })
+    );
+
+    navigate("/trip/1");
+  } catch (error) {
+  console.error("Full Error:", error);
+  alert(error.message || "Unknown Error");
+}
 };
-
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 to-purple-600 flex justify-center items-center p-6">
       <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-8">
