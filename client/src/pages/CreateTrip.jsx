@@ -12,6 +12,9 @@ function CreateTrip() {
     interest: "",
   });
 
+  // Loading State
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setTripData({
       ...tripData,
@@ -20,12 +23,16 @@ function CreateTrip() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  console.log("✅ Button Clicked");
+    if (loading) return;
 
-  try {
-    const prompt = `
+    setLoading(true);
+
+    console.log("✅ Button Clicked");
+
+    try {
+      const prompt = `
 Create a ${tripData.days}-day travel plan for ${tripData.destination}.
 
 Budget: ₹${tripData.budget}
@@ -40,31 +47,35 @@ Give:
 5. Travel tips
 `;
 
-    console.log("📤 Prompt:");
-    console.log(prompt);
+      console.log("📤 Prompt:");
+      console.log(prompt);
 
-    const aiResponse = await generateTripPlan(prompt);
+      const aiResponse = await generateTripPlan(prompt);
 
-    console.log("✅ AI Response:");
-    console.log(aiResponse);
+      console.log("✅ AI Response:");
+      console.log(aiResponse);
 
-    localStorage.setItem(
-      "trip",
-      JSON.stringify({
-        ...tripData,
-        aiPlan: aiResponse,
-      })
-    );
+      localStorage.setItem(
+        "trip",
+        JSON.stringify({
+          ...tripData,
+          aiPlan: aiResponse,
+        })
+      );
 
-    navigate("/trip/1");
-  } catch (error) {
-  console.error("Full Error:", error);
-  alert(error.message || "Unknown Error");
-}
-};
+      navigate("/trip/1");
+    } catch (error) {
+      console.error("❌ Full Error:", error);
+      alert(error.message || "Failed to generate trip.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-600 to-purple-600 flex justify-center items-center p-6">
       <div className="bg-white w-full max-w-xl rounded-2xl shadow-2xl p-8">
+
         <h1 className="text-4xl font-bold text-center mb-2">
           Create Your Trip ✈️
         </h1>
@@ -74,6 +85,7 @@ Give:
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+
           <input
             type="text"
             name="destination"
@@ -121,10 +133,12 @@ Give:
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Generate AI Trip
+            {loading ? "Generating AI Trip..." : "Generate AI Trip"}
           </button>
+
         </form>
       </div>
     </div>
