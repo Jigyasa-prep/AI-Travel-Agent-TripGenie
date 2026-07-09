@@ -46,14 +46,15 @@ Day 3:
 
 
   const itinerary = finalPlan
-    .split(/Day \d+[:-]?/i)
-    .filter(Boolean)
-    .map((item, index) => ({
-      day: `Day ${index + 1}`,
-      activities: item
-        .split("\n")
-        .filter(line => line.trim() !== "")
-    }));
+  .match(/Day\s*\d+:[\s\S]*?(?=Day\s*\d+:|$)/gi)
+  ?.map((item, index) => ({
+    day: `Day ${index + 1}`,
+    activities: item
+      .replace(/Day\s*\d+:/i, "")
+      .split("\n")
+      .map(line => line.trim())
+      .filter(line => line !== "")
+  })) || [];
 
 
 
