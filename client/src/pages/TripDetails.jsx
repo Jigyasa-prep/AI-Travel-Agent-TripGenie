@@ -1,4 +1,5 @@
 import { useState } from "react";
+import TravelChatbot from "../components/TravelChatbot";
 
 function TripDetails() {
 
@@ -20,23 +21,40 @@ function TripDetails() {
   }
 
 
-  const aiPlan = trip.aiPlan || "AI Plan not available.";
+  const staticPlan = `
+Day 1:
+🏖️ Explore famous attractions
+🍽️ Try local food
+📸 Visit popular places
 
-  const totalDays = Number(trip.days) || 1;
+Day 2:
+🌄 Explore scenic locations
+☕ Visit local cafes
+🛍️ Shopping and sightseeing
+
+Day 3:
+🏞️ Nature exploration
+🍴 Enjoy traditional cuisine
+📸 Capture memories
+`;
 
 
-  const itinerary = Array.from(
-    { length: totalDays },
-    (_, index) => ({
+  const finalPlan = trip.aiPlan?.trim()
+    ? trip.aiPlan
+    : staticPlan;
+
+
+
+  const itinerary = finalPlan
+    .split(/Day \d+[:-]?/i)
+    .filter(Boolean)
+    .map((item, index) => ({
       day: `Day ${index + 1}`,
+      activities: item
+        .split("\n")
+        .filter(line => line.trim() !== "")
+    }));
 
-      activities: [
-        `🏖️ Explore attractions on Day ${index + 1}`,
-        `🍽️ Enjoy local food on Day ${index + 1}`,
-        `📸 Visit famous places on Day ${index + 1}`,
-      ],
-    })
-  );
 
 
   return (
@@ -47,7 +65,6 @@ function TripDetails() {
 
 
         {/* Header */}
-
 
         <div className="bg-white rounded-3xl shadow-xl p-8 mb-10">
 
@@ -64,6 +81,7 @@ function TripDetails() {
             Your Personalized AI Travel Planner
 
           </p>
+
 
 
           <div className="grid md:grid-cols-3 gap-6 mt-8">
@@ -97,7 +115,6 @@ function TripDetails() {
 
 
 
-
             <div className="bg-purple-50 rounded-2xl p-6 text-center shadow">
 
               <h3 className="text-xl font-bold">
@@ -115,7 +132,12 @@ function TripDetails() {
 
 
         </div>
-              {/* AI Generated Plan */}
+
+
+
+
+        {/* AI Generated Plan */}
+
 
         <div className="bg-white rounded-3xl shadow-xl p-8 mb-10">
 
@@ -127,74 +149,56 @@ function TripDetails() {
           </h2>
 
 
-          <pre className="whitespace-pre-wrap text-gray-700 leading-8 text-lg">
 
-            {aiPlan}
-
-          </pre>
+          <div className="space-y-6">
 
 
-        </div>
+            {itinerary.map((item,index)=>(
 
 
-
-        {/* Day Wise Itinerary */}
-
-
-        <h2 className="text-4xl font-bold mb-6">
-
-          🗺️ Day-wise Itinerary
-
-        </h2>
+              <div
+                key={index}
+                className="bg-blue-50 rounded-2xl shadow-lg p-6 hover:shadow-xl transition"
+              >
 
 
+                <h3 className="text-2xl font-bold text-blue-700 mb-4">
 
-        <div className="space-y-6 mb-12">
+                  🗓️ {item.day}
 
-
-          {itinerary.map((item, index) => (
-
-
-            <div
-              key={index}
-              className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-2xl transition duration-300"
-            >
-
-
-              <h3 className="text-2xl font-bold text-blue-600 mb-4">
-
-                {item.day}
-
-              </h3>
+                </h3>
 
 
 
-              <ul className="space-y-3">
+                <ul className="space-y-3">
 
 
-                {item.activities.map((activity, i) => (
+                  {item.activities.map((activity,i)=>(
 
 
-                  <li
-                    key={i}
-                    className="bg-gray-100 rounded-xl p-4 hover:bg-blue-50 transition"
-                  >
+                    <li
+                      key={i}
+                      className="bg-white rounded-xl p-3 shadow"
+                    >
 
-                    {activity}
+                      {activity}
 
-                  </li>
-
-
-                ))}
+                    </li>
 
 
-              </ul>
+                  ))}
 
 
-            </div>
+                </ul>
 
 
-          ))}
+              </div>
+
+
+            ))}
+
+
+          </div>
 
 
         </div>
@@ -345,7 +349,13 @@ function TripDetails() {
 
 
         </div>
-                {/* Budget Breakdown */}
+
+
+
+
+
+        {/* Budget Breakdown */}
+
 
 
         <h2 className="text-4xl font-bold mb-6">
@@ -353,6 +363,7 @@ function TripDetails() {
           💰 Budget Breakdown
 
         </h2>
+
 
 
 
@@ -507,6 +518,15 @@ function TripDetails() {
 
 
 
+        {/* AI Chatbot */}
+
+
+        <TravelChatbot />
+
+
+
+
+
         {/* Footer */}
 
 
@@ -545,6 +565,7 @@ function TripDetails() {
 
 
         </div>
+
 
 
       </div>
