@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getWeather } from "../services/WeatherAPI";
 import TravelChatbot from "../components/TravelChatbot";
 
 function TripDetails() {
@@ -6,7 +7,7 @@ function TripDetails() {
   const [trip] = useState(() =>
     JSON.parse(localStorage.getItem("trip"))
   );
-
+  const [weather, setWeather] = useState(null);
 
   if (!trip) {
     return (
@@ -43,6 +44,17 @@ Day 3:
     ? trip.aiPlan
     : staticPlan;
 
+
+  useEffect(() => {
+  if (!trip) return;
+
+  async function fetchWeather() {
+    const data = await getWeather(trip.destination);
+    setWeather(data);
+  }
+
+  fetchWeather();
+}, [trip]);
 
 
   const itinerary = finalPlan
@@ -134,8 +146,46 @@ Day 3:
 
         </div>
 
+{/* Weather Card */}
+
+{weather && weather.main && (
+
+  <div className="bg-white rounded-3xl shadow-xl p-6 mb-10">
+
+    <h2 className="text-3xl font-bold text-blue-700 mb-5">
+      🌦 Current Weather
+    </h2>
+
+    <div className="grid md:grid-cols-4 gap-4">
+
+      <div className="bg-blue-100 rounded-xl p-4 text-center">
+        <h3 className="font-bold">🌡 Temperature</h3>
+        <p>{weather.main.temp}°C</p>
+      </div>
+
+      <div className="bg-green-100 rounded-xl p-4 text-center">
+        <h3 className="font-bold">💧 Humidity</h3>
+        <p>{weather.main.humidity}%</p>
+      </div>
+
+      <div className="bg-yellow-100 rounded-xl p-4 text-center">
+        <h3 className="font-bold">🌤 Weather</h3>
+        <p>{weather.weather[0].main}</p>
+      </div>
+
+      <div className="bg-purple-100 rounded-xl p-4 text-center">
+        <h3 className="font-bold">💨 Wind</h3>
+        <p>{weather.wind.speed} m/s</p>
+      </div>
+
+    </div>
+
+  </div>
+
+)}
 
 
+        
 
         {/* AI Generated Plan */}
 
@@ -524,7 +574,7 @@ Day 3:
 
         <TravelChatbot />
 
-
+        
 
 
 
