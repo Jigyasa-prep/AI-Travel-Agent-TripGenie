@@ -1,16 +1,66 @@
 import { useState, useEffect } from "react";
 import { getWeather } from "../services/WeatherAPI";
 import TravelChatbot from "../components/TravelChatbot";
+import MapView from "../components/MapView";
+
 
 function TripDetails() {
+
 
   const [trip] = useState(() =>
     JSON.parse(localStorage.getItem("trip"))
   );
+
+
   const [weather, setWeather] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(true);
+
+
+
+  // ================= WEATHER =================
+
+
+  useEffect(() => {
+
+    if (!trip) return;
+
+
+    const fetchWeather = async () => {
+
+      try {
+
+        const data = await getWeather(trip.destination);
+
+        setWeather(data);
+
+      } catch (error) {
+
+        console.log("Weather Error:", error);
+        setWeather(null);
+
+      }
+      finally {
+
+        setWeatherLoading(false);
+
+      }
+
+    };
+
+
+    fetchWeather();
+
+
+  }, [trip]);
+
+
+
+
 
   if (!trip) {
+
     return (
+
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
 
         <h1 className="text-3xl font-bold">
@@ -18,56 +68,193 @@ function TripDetails() {
         </h1>
 
       </div>
+
     );
+
   }
 
 
-  const staticPlan = `
+
+
+
+  // ================= FALLBACK =================
+
+
+  const fallbackPlan = `
+
 Day 1:
-🏖️ Explore famous attractions
-🍽️ Try local food
-📸 Visit popular places
+
+📍 Places:
+- Explore famous attractions
+
+🎯 Activities:
+- Sightseeing and photography
+
+🍽️ Food:
+- Try local food
+
 
 Day 2:
-🌄 Explore scenic locations
-☕ Visit local cafes
-🛍️ Shopping and sightseeing
 
-Day 3:
-🏞️ Nature exploration
-🍴 Enjoy traditional cuisine
-📸 Capture memories
+📍 Places:
+- Visit popular tourist spots
+
+🎯 Activities:
+- Local exploration
+
+🍽️ Food:
+- Traditional dishes
+
+
+
+Hotels:
+
+- Mountain View Hotel ₹2500/night
+- Himalayan Resort ₹3500/night
+
+
+
+Famous Foods:
+
+- Local cuisine
+- Famous street food
+
+
+
+Budget Breakdown:
+
+- Hotel: ₹8000
+- Food: ₹4000
+- Transport: ₹5000
+- Activities: ₹3000
+
+
+
+Travel Tips:
+
+- Carry ID proof
+- Check weather before travel
+- Keep emergency cash
+
 `;
 
 
-  const finalPlan = trip.aiPlan?.trim()
-    ? trip.aiPlan
-    : staticPlan;
 
 
-  useEffect(() => {
-  if (!trip) return;
-
-  async function fetchWeather() {
-    const data = await getWeather(trip.destination);
-    setWeather(data);
-  }
-
-  fetchWeather();
-}, [trip]);
 
 
-  const itinerary = finalPlan
-  .match(/Day\s*\d+:[\s\S]*?(?=Day\s*\d+:|$)/gi)
-  ?.map((item, index) => ({
-    day: `Day ${index + 1}`,
-    activities: item
-      .replace(/Day\s*\d+:/i, "")
-      .split("\n")
-      .map(line => line.trim())
-      .filter(line => line !== "")
-  })) || [];
+  const finalPlan =
+    trip.aiPlan?.trim()
+      ? trip.aiPlan
+      : fallbackPlan;
 
+
+
+
+
+
+
+  // ================= ITINERARY =================
+
+
+  const itinerary =
+    finalPlan
+      .match(
+        /Day\s*\d+\s*:[\s\S]*?(?=Day\s*\d+\s*:|Hotels:|Famous Foods:|Budget Breakdown:|Travel Tips:|$)/gi
+      )
+      ?.map((item,index)=>({
+
+        day:`Day ${index+1}`,
+
+        content:
+          item
+          .replace(/Day\s*\d+\s*:/i,"")
+          .trim()
+
+      }))
+      || [];
+
+
+
+
+
+
+
+  // ================= HOTELS =================
+
+
+  const hotels =
+    finalPlan
+    .match(
+      /Hotels:\s*([\s\S]*?)(?=Famous Foods:|Budget Breakdown:|Travel Tips:|$)/i
+    )
+    ?.[1]
+    ?.split("\n")
+    .map(item=>item.trim())
+    .filter(item=>item)
+    || [];
+
+
+
+
+
+
+
+  // ================= FOODS =================
+
+
+  const foods =
+    finalPlan
+    .match(
+      /Famous Foods:\s*([\s\S]*?)(?=Budget Breakdown:|Travel Tips:|$)/i
+    )
+    ?.[1]
+    ?.split("\n")
+    .map(item=>item.trim())
+    .filter(item=>item)
+    || [];
+
+
+
+
+
+
+
+
+  // ================= BUDGET =================
+
+
+  const budget =
+    finalPlan
+    .match(
+      /Budget Breakdown:\s*([\s\S]*?)(?=Travel Tips:|$)/i
+    )
+    ?.[1]
+    ?.split("\n")
+    .map(item=>item.trim())
+    .filter(item=>item)
+    || [];
+
+
+
+
+
+
+
+
+  // ================= TIPS =================
+
+
+  const tips =
+    finalPlan
+    .match(
+      /Travel Tips:\s*([\s\S]*)/i
+    )
+    ?.[1]
+    ?.split("\n")
+    .map(item=>item.trim())
+    .filter(item=>item)
+    || [];
 
 
   return (
@@ -77,7 +264,8 @@ Day 3:
       <div className="max-w-6xl mx-auto">
 
 
-        {/* Header */}
+        {/* ================= HEADER ================= */}
+
 
         <div className="bg-white rounded-3xl shadow-xl p-8 mb-10">
 
@@ -100,42 +288,49 @@ Day 3:
           <div className="grid md:grid-cols-3 gap-6 mt-8">
 
 
-            <div className="bg-blue-50 rounded-2xl p-6 text-center shadow">
+            <div className="bg-blue-100 rounded-2xl p-6 text-center shadow">
 
               <h3 className="text-xl font-bold">
                 💰 Budget
               </h3>
 
               <p className="text-3xl font-semibold mt-2">
+
                 ₹{trip.budget}
+
               </p>
 
             </div>
 
 
 
-            <div className="bg-green-50 rounded-2xl p-6 text-center shadow">
+            <div className="bg-green-100 rounded-2xl p-6 text-center shadow">
 
               <h3 className="text-xl font-bold">
                 📅 Days
               </h3>
 
               <p className="text-3xl font-semibold mt-2">
+
                 {trip.days}
+
               </p>
 
             </div>
 
 
 
-            <div className="bg-purple-50 rounded-2xl p-6 text-center shadow">
+
+            <div className="bg-purple-100 rounded-2xl p-6 text-center shadow">
 
               <h3 className="text-xl font-bold">
                 🎯 Interest
               </h3>
 
-              <p className="text-2xl font-semibold mt-2">
+              <p className="text-xl font-semibold mt-2">
+
                 {trip.interest}
+
               </p>
 
             </div>
@@ -146,48 +341,150 @@ Day 3:
 
         </div>
 
-{/* Weather Card */}
-
-{weather && weather.main && (
-
-  <div className="bg-white rounded-3xl shadow-xl p-6 mb-10">
-
-    <h2 className="text-3xl font-bold text-blue-700 mb-5">
-      🌦 Current Weather
-    </h2>
-
-    <div className="grid md:grid-cols-4 gap-4">
-
-      <div className="bg-blue-100 rounded-xl p-4 text-center">
-        <h3 className="font-bold">🌡 Temperature</h3>
-        <p>{weather.main.temp}°C</p>
-      </div>
-
-      <div className="bg-green-100 rounded-xl p-4 text-center">
-        <h3 className="font-bold">💧 Humidity</h3>
-        <p>{weather.main.humidity}%</p>
-      </div>
-
-      <div className="bg-yellow-100 rounded-xl p-4 text-center">
-        <h3 className="font-bold">🌤 Weather</h3>
-        <p>{weather.weather[0].main}</p>
-      </div>
-
-      <div className="bg-purple-100 rounded-xl p-4 text-center">
-        <h3 className="font-bold">💨 Wind</h3>
-        <p>{weather.wind.speed} m/s</p>
-      </div>
-
-    </div>
-
-  </div>
-
-)}
 
 
-        
 
-        {/* AI Generated Plan */}
+
+
+
+        {/* ================= WEATHER ================= */}
+
+
+
+        {
+          weatherLoading ? (
+
+            <div className="bg-white rounded-3xl shadow-xl p-6 mb-10">
+
+              <h2 className="text-2xl font-bold text-blue-700">
+
+                🌦 Loading Weather...
+
+              </h2>
+
+            </div>
+
+
+          )
+
+          :
+
+          weather && weather.main && (
+
+            <div className="bg-white rounded-3xl shadow-xl p-6 mb-10">
+
+
+              <h2 className="text-3xl font-bold text-blue-700 mb-5">
+
+                🌦 Current Weather
+
+              </h2>
+
+
+
+
+              <div className="grid md:grid-cols-4 gap-5">
+
+
+
+                <div className="bg-blue-100 rounded-xl p-5 text-center">
+
+                  🌡 Temperature
+
+                  <p className="text-xl font-bold">
+
+                    {weather.main.temp} °C
+
+                  </p>
+
+                </div>
+
+
+
+
+
+                <div className="bg-green-100 rounded-xl p-5 text-center">
+
+                  💧 Humidity
+
+                  <p className="text-xl font-bold">
+
+                    {weather.main.humidity} %
+
+                  </p>
+
+                </div>
+
+
+
+
+
+                <div className="bg-yellow-100 rounded-xl p-5 text-center">
+
+                  🌤 Condition
+
+                  <p className="text-xl font-bold">
+
+                    {weather.weather?.[0]?.main}
+
+                  </p>
+
+                </div>
+
+
+
+
+
+                <div className="bg-purple-100 rounded-xl p-5 text-center">
+
+                  💨 Wind
+
+                  <p className="text-xl font-bold">
+
+                    {weather.wind?.speed} m/s
+
+                  </p>
+
+                </div>
+
+
+
+              </div>
+
+
+            </div>
+
+
+          )
+
+        }
+
+
+
+
+
+
+
+
+        {/* ================= MAP ================= */}
+
+
+
+        <div className="bg-red-500 text-white p-5 mb-5">
+  MAP SHOULD BE BELOW
+</div>
+
+<MapView destination={trip.destination} />
+
+
+
+
+
+
+
+
+        {/* ================= ITINERARY ================= */}
+
 
 
         <div className="bg-white rounded-3xl shadow-xl p-8 mb-10">
@@ -195,7 +492,7 @@ Day 3:
 
           <h2 className="text-3xl font-bold text-blue-700 mb-6">
 
-            🤖 AI Generated Travel Plan
+            🤖 AI Day-wise Itinerary
 
           </h2>
 
@@ -204,56 +501,73 @@ Day 3:
           <div className="space-y-6">
 
 
-            {itinerary.map((item,index)=>(
+
+            {
+              itinerary.length > 0 ?
 
 
-              <div
-                key={index}
-                className="bg-blue-50 rounded-2xl shadow-lg p-6 hover:shadow-xl transition"
-              >
+              itinerary.map((item,index)=>(
 
 
-                <h3 className="text-2xl font-bold text-blue-700 mb-4">
+                <div
 
-                  🗓️ {item.day}
+                  key={index}
 
-                </h3>
+                  className="bg-blue-50 rounded-2xl shadow-lg p-6"
 
-
-
-                <ul className="space-y-3">
+                >
 
 
-                  {item.activities.map((activity,i)=>(
+
+                  <h3 className="text-2xl font-bold text-blue-700 mb-4">
+
+                    🗓️ {item.day}
+
+                  </h3>
 
 
-                    <li
-                      key={i}
-                      className="bg-white rounded-xl p-3 shadow"
-                    >
-
-                      {activity}
-
-                    </li>
 
 
-                  ))}
+                  <div className="bg-white rounded-xl p-5 shadow">
 
 
-                </ul>
+                    <p className="whitespace-pre-line text-lg text-gray-700">
 
+                      {item.content}
+
+                    </p>
+
+
+                  </div>
+
+
+
+                </div>
+
+
+              ))
+
+
+
+              :
+
+
+              <div className="bg-red-100 p-5 rounded-xl">
+
+                No itinerary generated
 
               </div>
 
 
-            ))}
+            }
+
 
 
           </div>
 
 
         </div>
-                {/* Hotels */}
+                {/* ================= HOTELS ================= */}
 
 
         <h2 className="text-4xl font-bold mb-6">
@@ -264,79 +578,54 @@ Day 3:
 
 
 
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
+        <div className="bg-white rounded-3xl shadow-xl p-6 mb-12">
 
 
-
-          <div className="bg-white rounded-2xl shadow-lg p-6 hover:scale-105 transition duration-300">
-
-
-            <h3 className="text-2xl font-bold text-blue-700">
-
-              ⭐ Hotel Snow View
-
-            </h3>
+          <div className="grid md:grid-cols-2 gap-5">
 
 
-            <p className="text-lg mt-3">
-
-              ⭐⭐⭐⭐☆
-
-            </p>
+            {
+              hotels.length > 0 ?
 
 
-            <p className="mt-3 text-gray-700">
-
-              💰 ₹2500 / Night
-
-            </p>
+              hotels.map((hotel,index)=>(
 
 
-            <p className="mt-2 text-gray-600">
+                <div
 
-              📍 Near City Center
+                  key={index}
 
-            </p>
+                  className="bg-blue-50 rounded-xl p-5 shadow"
 
+                >
 
-          </div>
+                  <h3 className="text-xl font-semibold">
 
+                    ⭐ {hotel}
 
-
-
-          <div className="bg-white rounded-2xl shadow-lg p-6 hover:scale-105 transition duration-300">
-
-
-            <h3 className="text-2xl font-bold text-blue-700">
-
-              ⭐ Himalayan Resort
-
-            </h3>
+                  </h3>
 
 
-            <p className="text-lg mt-3">
-
-              ⭐⭐⭐⭐⭐
-
-            </p>
+                </div>
 
 
-            <p className="mt-3 text-gray-700">
-
-              💰 ₹3500 / Night
-
-            </p>
+              ))
 
 
-            <p className="mt-2 text-gray-600">
+              :
 
-              📍 Mountain View
 
-            </p>
+              <div className="bg-blue-50 p-5 rounded-xl">
+
+                Hotel information not available
+
+              </div>
+
+
+            }
 
 
           </div>
-
 
 
         </div>
@@ -345,55 +634,61 @@ Day 3:
 
 
 
-        {/* Must Try Foods */}
+
+
+        {/* ================= FOODS ================= */}
 
 
 
         <h2 className="text-4xl font-bold mb-6">
 
-          🍴 Must Try Foods
+          🍴 Famous Foods
 
         </h2>
 
 
 
-
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-12">
-
-
-          <div className="grid md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-3xl shadow-xl p-6 mb-12">
 
 
-            <div className="bg-orange-100 rounded-xl p-4 font-semibold hover:scale-105 transition">
+          <div className="grid md:grid-cols-2 gap-5">
 
-              🍜 Local Noodles
+
+          {
+
+            foods.length > 0 ?
+
+
+            foods.map((food,index)=>(
+
+
+              <div
+
+                key={index}
+
+                className="bg-orange-100 rounded-xl p-5 font-semibold"
+
+              >
+
+                🍽️ {food}
+
+              </div>
+
+
+            ))
+
+
+            :
+
+
+            <div className="bg-orange-100 rounded-xl p-5">
+
+              Food information not available
 
             </div>
 
 
-
-            <div className="bg-orange-100 rounded-xl p-4 font-semibold hover:scale-105 transition">
-
-              🥟 Momos
-
-            </div>
-
-
-
-            <div className="bg-orange-100 rounded-xl p-4 font-semibold hover:scale-105 transition">
-
-              ☕ Local Tea
-
-            </div>
-
-
-
-            <div className="bg-orange-100 rounded-xl p-4 font-semibold hover:scale-105 transition">
-
-              🍛 Traditional Thali
-
-            </div>
-
+          }
 
 
           </div>
@@ -405,7 +700,11 @@ Day 3:
 
 
 
-        {/* Budget Breakdown */}
+
+
+
+
+        {/* ================= BUDGET ================= */}
 
 
 
@@ -417,77 +716,48 @@ Day 3:
 
 
 
-
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-12">
-
-
-          <div className="space-y-5">
+        <div className="bg-white rounded-3xl shadow-xl p-6 mb-12">
 
 
-
-            <div className="flex justify-between border-b pb-3">
-
-              <span>🏨 Hotels</span>
-
-              <span>₹12,000</span>
-
-            </div>
+          <div className="space-y-4">
 
 
 
+          {
 
-            <div className="flex justify-between border-b pb-3">
-
-              <span>🍴 Food</span>
-
-              <span>₹5,000</span>
-
-            </div>
+            budget.length > 0 ?
 
 
+            budget.map((item,index)=>(
 
 
-            <div className="flex justify-between border-b pb-3">
+              <div
 
-              <span>🚕 Transport</span>
+                key={index}
 
-              <span>₹8,000</span>
+                className="border-b pb-3 text-lg"
 
-            </div>
+              >
+
+                💵 {item}
+
+              </div>
 
 
+            ))
 
 
-            <div className="flex justify-between border-b pb-3">
+            :
 
-              <span>🎟️ Activities</span>
 
-              <span>₹3,000</span>
+            <div>
+
+              Budget information not available
 
             </div>
 
 
-
-
-            <div className="flex justify-between border-b pb-3">
-
-              <span>🛍️ Shopping</span>
-
-              <span>₹5,000</span>
-
-            </div>
-
-
-
-
-            <div className="flex justify-between text-2xl font-bold text-green-600 pt-4">
-
-              <span>Total Budget</span>
-
-              <span>₹{trip.budget}</span>
-
-            </div>
-
+          }
 
 
           </div>
@@ -499,7 +769,11 @@ Day 3:
 
 
 
-        {/* Travel Tips */}
+
+
+
+
+        {/* ================= TRAVEL TIPS ================= */}
 
 
 
@@ -512,52 +786,48 @@ Day 3:
 
 
 
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-10">
+        <div className="bg-white rounded-3xl shadow-xl p-6 mb-12">
 
 
           <ul className="space-y-4">
 
 
+          {
+
+
+            tips.length > 0 ?
+
+
+            tips.map((tip,index)=>(
+
+
+              <li
+
+                key={index}
+
+                className="bg-green-100 rounded-xl p-4"
+
+              >
+
+                ✅ {tip}
+
+              </li>
+
+
+            ))
+
+
+            :
+
+
             <li className="bg-green-100 rounded-xl p-4">
 
-              ✅ Carry your ID proof and travel documents.
+              Carry important documents and enjoy your trip.
 
             </li>
 
 
-            <li className="bg-blue-100 rounded-xl p-4">
-
-              ✅ Keep emergency cash and digital payment options.
-
-            </li>
-
-
-            <li className="bg-yellow-100 rounded-xl p-4">
-
-              ✅ Start sightseeing early to avoid crowds.
-
-            </li>
-
-
-            <li className="bg-purple-100 rounded-xl p-4">
-
-              ✅ Check the weather forecast before leaving.
-
-            </li>
-
-
-            <li className="bg-pink-100 rounded-xl p-4">
-
-              ✅ Carry a power bank and keep your phone charged.
-
-            </li>
-
-
-            <li className="bg-orange-100 rounded-xl p-4">
-
-              ✅ Try local food and respect local culture.
-
-            </li>
+          }
 
 
           </ul>
@@ -569,23 +839,32 @@ Day 3:
 
 
 
-        {/* AI Chatbot */}
+
+
+
+
+        {/* ================= CHATBOT ================= */}
+
 
 
         <TravelChatbot />
 
-        
 
 
 
-        {/* Footer */}
 
 
 
-        <div className="bg-white rounded-3xl shadow-lg p-8 text-center">
 
 
-          <h2 className="text-3xl font-bold text-blue-700 mb-4">
+        {/* ================= FOOTER ================= */}
+
+
+
+        <div className="bg-white rounded-3xl shadow-xl p-8 text-center mt-10">
+
+
+          <h2 className="text-3xl font-bold text-blue-700">
 
             🌍 Have a Safe Journey!
 
@@ -593,26 +872,26 @@ Day 3:
 
 
 
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 mt-3 text-lg">
 
-            Thank you for using{" "}
+            Thank you for using
 
             <span className="font-bold text-blue-600">
 
-              TripGenie AI
+              {" "}TripGenie AI
 
-            </span>.
+            </span>
+
+            ✈️
 
           </p>
-
 
 
           <p className="text-gray-500 mt-2">
 
-            Your smart AI travel companion ✈️
+            Your smart AI travel companion
 
           </p>
-
 
 
         </div>
