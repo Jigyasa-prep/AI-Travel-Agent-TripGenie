@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { getWeather } from "../services/WeatherAPI";
 import TravelChatbot from "../components/TravelChatbot";
 import MapView from "../components/MapView";
+import { downloadTripPDF } from "../services/pdfGenerator";
 
 
 function TripDetails() {
@@ -463,7 +464,23 @@ Travel Tips:
 
 
 
-
+<div className="flex justify-center mb-8">
+  <button
+    onClick={() =>
+      downloadTripPDF(
+        trip,
+        itinerary,
+        hotels,
+        foods,
+        budget,
+        tips
+      )
+    }
+    className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg"
+  >
+    📄 Download Trip PDF
+  </button>
+</div>
 
 
         {/* ================= MAP ================= */}
