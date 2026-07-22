@@ -137,6 +137,28 @@ Travel Tips:
 - Check weather before travel
 - Keep emergency cash
 
+TRAVEL ALERT:
+
+Status:
+No Delay
+
+Reason:
+Normal weather conditions.
+
+ALTERNATIVE FLIGHTS:
+- No alternate flight required.
+
+ALTERNATIVE TRAINS:
+- No alternate train required.
+
+ALTERNATIVE BUS:
+- Volvo AC Bus
+
+Extra Cost:
+₹0
+
+Advice:
+Enjoy your trip.
 `;
 
 
@@ -161,8 +183,8 @@ Travel Tips:
   const itinerary =
     finalPlan
       .match(
-        /Day\s*\d+\s*:[\s\S]*?(?=Day\s*\d+\s*:|Hotels:|Famous Foods:|Budget Breakdown:|Travel Tips:|$)/gi
-      )
+/Day\s*\d+\s*:[\s\S]*?(?=Day\s*\d+\s*:|Hotels:|Famous Foods:|Budget Breakdown:|Travel Tips:|TRAVEL ALERT:|$)/gi
+)
       ?.map((item,index)=>({
 
         day:`Day ${index+1}`,
@@ -249,8 +271,8 @@ Travel Tips:
   const tips =
     finalPlan
     .match(
-      /Travel Tips:\s*([\s\S]*)/i
-    )
+/Travel Tips:\s*([\s\S]*?)(?=TRAVEL ALERT:|$)/i
+)
     ?.[1]
     ?.split("\n")
     .map(item=>item.trim())
@@ -264,6 +286,14 @@ Travel Tips:
 
       <div className="max-w-6xl mx-auto">
 
+
+// ================= TRAVEL ALERT =================
+
+const travelAlert =
+  finalPlan.match(
+    /TRAVEL ALERT:\s*([\s\S]*)/i
+  )?.[1]
+  ?.trim() || "";  
 
         {/* ================= HEADER ================= */}
 
@@ -855,7 +885,33 @@ Travel Tips:
 
 
 
+    {/* ================= TRAVEL ALERT ================= */}
 
+<h2 className="text-4xl font-bold mb-6">
+🚨 Travel Alert & Alternate Options
+</h2>
+
+<div className="bg-white rounded-3xl shadow-xl p-6 mb-12">
+
+  {
+    travelAlert ? (
+
+      <pre className="whitespace-pre-wrap text-lg text-gray-700">
+        {travelAlert}
+      </pre>
+
+    ) : (
+
+      <div className="bg-yellow-100 rounded-xl p-5">
+
+        ✅ No travel disruption reported.
+
+      </div>
+
+    )
+  }
+
+</div>
 
 
 
